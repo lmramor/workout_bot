@@ -4,10 +4,10 @@ import logging
 from aiogram import F, Router
 from aiogram.types import Message
 
-from database.db import save_plan
-from handlers.start import open_plan_keyboard
+from database.db import save_plan, set_reminder
+from handlers.keyboards import WEEKDAYS, open_plan_keyboard
 from services.ai_client import generate_plan
-from services.planner import InvalidData, plan_url_param, validate_survey
+from services.planner import InvalidData, plan_survey, plan_url_param, validate_survey
 
 router = Router()
 log = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ async def on_survey(message: Message) -> None:
 
     param = plan_url_param(plan, survey)
     source = "ai" if param.startswith("p=") else "rules"
-    save_plan(message.from_user.id, survey, param, source)
+    save_plan(message.from_user.id, plan_survey(survey), param, source)
 
     if source == "ai":
         days = "\n".join(f"День {i + 1} — {d['t']}" for i, d in enumerate(plan["d"]) if d["t"])
@@ -39,6 +39,10 @@ async def on_survey(message: Message) -> None:
     else:
         text = ("Готово! ИИ сейчас не ответил, поэтому план собран по правилам: "
                 "он учитывает цель, уровень, инвентарь и ограничения.")
+    if survey["remind"] and survey.get("wd"):
+        set_reminder(message.from_user.id, survey["wd"], survey["remind"])
+        days = ", ".join(WEEKDAYS[d] for d in survey["wd"])
+        text += f"\n\n🔔 Напомню о тренировке: {days} в {survey['remind']}. Изменить — /remind"
     await wait.delete()
     await message.answer(text + "\n\nОткрой план, выбери день и жми «Начать тренировку».",
                          reply_markup=open_plan_keyboard(param))

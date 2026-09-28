@@ -1,19 +1,25 @@
 /*
- * Логика плана: фильтрация упражнений, сборка плана по правилам, разбор плана из ссылки.
+ * Логика плана: фильтрация упражнений, план по правилам, прогрессия по неделям,
+ * быстрая тренировка на одну мышцу, проверка плана из ссылки.
  * Работает и в браузере (window.Planner), и в Node для тестов (module.exports).
  */
 (function (root) {
   "use strict";
 
   const GOALS = {
-    mass: { title: "Набор массы", reps: 10, rest: 90 },
-    loss: { title: "Похудение", reps: 15, rest: 40 },
-    fit: { title: "Поддержание формы", reps: 12, rest: 60 },
-    endurance: { title: "Выносливость", reps: 20, rest: 30 },
+    loss: { title: "Похудение", icon: "🔥", reps: 15, rest: 40 },
+    mass: { title: "Набор массы", icon: "💪", reps: 10, rest: 90 },
+    fit: { title: "Поддержание формы", icon: "⚖️", reps: 12, rest: 60 },
+    endurance: { title: "Выносливость", icon: "🏃", reps: 20, rest: 30 },
   };
   const LEVELS = { 1: "Новичок", 2: "Средний", 3: "Продвинутый" };
-  const EQUIPMENT = { none: "Без инвентаря", dumbbell: "Гантели", gym: "Тренажёрный зал" };
+  const EQUIPMENT = { none: "Дома без инвентаря", dumbbell: "Дома с гантелями", gym: "В зале" };
   const AVOID = { knees: "Колени", back: "Спина", shoulders: "Плечи", wrists: "Запястья" };
+  const MUSCLES = {
+    chest: "Грудь", lats: "Спина", delts: "Плечи", biceps: "Бицепс",
+    triceps: "Трицепс", abs: "Пресс", legs: "Ноги", glutes: "Ягодицы",
+  };
+  const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
   const DAY_TYPES = {
     full: { title: "Всё тело", cats: ["legs", "push", "pull", "core"], extra: { cardio: ["cardio", "legs"], strength: ["legs", "pull"] } },
@@ -32,13 +38,16 @@
 
   function validateSurvey(s) {
     if (!s || typeof s !== "object") throw new Error("bad survey");
+    let wd = Array.isArray(s.wd) ? [...new Set(s.wd.map(Number))].filter((d) => d >= 0 && d <= 6).sort() : null;
     const out = {
       goal: String(s.goal),
       level: Number(s.level),
       eq: String(s.eq),
-      days: Number(s.days),
+      days: wd && wd.length ? wd.length : Number(s.days),
       avoid: Array.isArray(s.avoid) ? s.avoid.map(String).filter((a) => a in AVOID) : [],
+      focus: Array.isArray(s.focus) ? s.focus.map(String).filter((m) => m in MUSCLES) : [],
     };
+    if (wd && wd.length) out.wd = wd;
     if (!(out.goal in GOALS) || !(out.level in LEVELS) || !(out.eq in EQUIPMENT) || !(out.days in SPLITS)) {
       throw new Error("bad survey");
     }
@@ -52,31 +61,51 @@
     );
   }
 
-  function amountFor(e, s) {
-    if (e.mode === "time") {
-      return [30, 40, 50][s.level - 1] + (s.goal === "endurance" ? 10 : 0);
-    }
-    const reps = GOALS[s.goal].reps;
-    return e.cat === "cardio" ? Math.min(reps, 15) : reps;
+  /** Мышцы, для которых хватает упражнений (минимум 2) с таким инвентарём. */
+  function availableMuscles(lib, s) {
+    const pool = allowedExercises(lib, s);
+    return Object.keys(MUSCLES).filter((m) => pool.filter((e) => e.mus.includes(m)).length >= 2);
   }
 
-  /** План по правилам: без ИИ, всегда работает. */
-  function buildPlan(lib, survey) {
+  function amountFor(e, s, week) {
+    const w = Math.max(0, (week || 1) - 1);
+    if (e.mode === "time") {
+      const base = [30, 40, 50][s.level - 1] + (s.goal === "endurance" ? 10 : 0);
+      return Math.min(base + w * 5, base + 20);
+    }
+    const reps = GOALS[s.goal].reps;
+    const base = e.cat === "cardio" ? Math.min(reps, 15) : reps;
+    // Для массы растёт вес, а не повторения, поэтому прибавка скромнее
+    return s.goal === "mass" ? Math.min(base + w, base + 2) : Math.min(base + w * 2, base + 6);
+  }
+
+  function setsFor(s, week) {
+    const base = s.level === 1 ? 3 : s.goal === "mass" ? 4 : 3;
+    return Math.min(4, base + (week >= 3 && s.level > 1 ? 1 : 0));
+  }
+
+  /** План по правилам: без ИИ, всегда работает. week > 1 — больше нагрузки и другие упражнения. */
+  function buildPlan(lib, survey, week) {
     const s = validateSurvey(survey);
+    week = Math.max(1, Math.min(52, Number(week) || 1));
     const pool = allowedExercises(lib, s);
-    // Сначала самое «тяжёлое» из доступного инвентаря, чтобы в зале не давать только отжимания.
+    const focusFirst = (e) => (s.focus.some((m) => e.mus.includes(m)) ? 1 : 0);
+    // Сначала упражнения на выбранные мышцы, потом самое «тяжёлое» из доступного инвентаря.
     const byCat = {};
     for (const e of pool) (byCat[e.cat] = byCat[e.cat] || []).push(e);
-    for (const c in byCat) byCat[c].sort((a, b) => EQ_RANK[b.eq] - EQ_RANK[a.eq]);
+    for (const c in byCat) byCat[c].sort((a, b) => focusFirst(b) - focusFirst(a) || EQ_RANK[b.eq] - EQ_RANK[a.eq]);
     const cursor = {};
-    const sets = s.level === 1 ? 3 : s.goal === "mass" ? 4 : 3;
+    for (const c in byCat) cursor[c] = ((week - 1) * 2) % byCat[c].length; // новая неделя — новые упражнения
+    const sets = setsFor(s, week);
     const cardioGoal = s.goal === "loss" || s.goal === "endurance";
+    let focusTurn = 0;
 
     const days = SPLITS[s.days].map((type) => {
       const t = DAY_TYPES[type];
       const cats = t.cats.concat(cardioGoal ? t.extra.cardio : t.extra.strength);
       const used = new Set();
       const items = [];
+      const take = (e) => { used.add(e.k); items.push([e.k, sets, amountFor(e, s, week)]); };
       for (const cat of cats) {
         for (const c of [cat].concat(FALLBACK[cat] || [])) {
           const list = byCat[c] || [];
@@ -85,12 +114,31 @@
             const e = list[((cursor[c] || 0) + i) % list.length];
             if (!used.has(e.k)) { pick = e; cursor[c] = (cursor[c] || 0) + i + 1; break; }
           }
-          if (pick) { used.add(pick.k); items.push([pick.k, sets, amountFor(pick, s)]); break; }
+          if (pick) { take(pick); break; }
+        }
+      }
+      // Акцент: ещё одно упражнение на выбранную мышцу в каждом дне
+      if (s.focus.length) {
+        for (let n = 0; n < s.focus.length; n++) {
+          const m = s.focus[(focusTurn + n) % s.focus.length];
+          const e = pool.find((x) => x.mus.includes(m) && !used.has(x.k));
+          if (e) { take(e); focusTurn = (focusTurn + n + 1) % s.focus.length; break; }
         }
       }
       return { t: t.title, x: items };
     });
-    return { v: 1, g: s.goal, d: days, src: "rules" };
+    return { v: 1, g: s.goal, w: week, s, d: days, src: "rules" };
+  }
+
+  /** Быстрая тренировка на одну мышцу — чтобы сделать ещё одну сразу после основной. */
+  function buildQuick(lib, survey, muscle) {
+    const s = validateSurvey(survey);
+    if (!(muscle in MUSCLES)) throw new Error("bad muscle");
+    const list = allowedExercises(lib, s)
+      .filter((e) => e.mus.includes(muscle))
+      .sort((a, b) => (b.mus[0] === muscle) - (a.mus[0] === muscle) || EQ_RANK[b.eq] - EQ_RANK[a.eq])
+      .slice(0, 5);
+    return { t: MUSCLES[muscle], x: list.map((e) => [e.k, 3, amountFor(e, s, 1)]) };
   }
 
   /** Проверяет план, пришедший в ссылке: только известные упражнения и разумные числа. */
@@ -110,7 +158,9 @@
         ]),
     })).filter((d) => d.x.length);
     if (!days.length) throw new Error("empty plan");
-    return { v: 1, g: p.g, d: days, src: p.src === "ai" ? "ai" : "rules" };
+    const out = { v: 1, g: p.g, w: clamp(p.w || 1, 1, 52), d: days, src: p.src === "ai" ? "ai" : "rules" };
+    try { if (p.s) out.s = validateSurvey(p.s); } catch (e) { /* план без опроса тоже годится */ }
+    return out;
   }
 
   function decodeParam(str) {
@@ -127,13 +177,16 @@
     const rest = GOALS[goal].rest;
     let sec = 0;
     for (const [k, sets, amount] of day.x) {
-      const work = byKey[k].mode === "time" ? amount : amount * 3;
+      const work = byKey[k].mode === "time" ? amount + 5 : amount * 3;
       sec += sets * work + sets * rest;
     }
     return Math.max(5, Math.round(sec / 60 / 5) * 5);
   }
 
-  const api = { GOALS, LEVELS, EQUIPMENT, AVOID, validateSurvey, allowedExercises, buildPlan, sanitizePlan, decodeParam, estimateMinutes };
+  const api = {
+    GOALS, LEVELS, EQUIPMENT, AVOID, MUSCLES, WEEKDAYS,
+    validateSurvey, allowedExercises, availableMuscles, buildPlan, buildQuick, sanitizePlan, decodeParam, estimateMinutes,
+  };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.Planner = api;
 })(typeof window !== "undefined" ? window : globalThis);

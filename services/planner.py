@@ -4,6 +4,7 @@
 """
 import base64
 import json
+import re
 from pathlib import Path
 
 LIBRARY_PATH = Path(__file__).resolve().parent.parent / "docs" / "exercises.json"
@@ -14,6 +15,9 @@ GOALS = {"mass": "Набор массы", "loss": "Похудение", "fit": "
 LEVELS = {1: "Новичок", 2: "Средний", 3: "Продвинутый"}
 EQUIPMENT = {"none": "дома без инвентаря", "dumbbell": "дома с гантелями", "gym": "в тренажёрном зале"}
 AVOID = {"knees": "колени", "back": "спина", "shoulders": "плечи", "wrists": "запястья"}
+MUSCLES = {"chest": "грудь", "lats": "спина", "delts": "плечи", "biceps": "бицепс",
+           "triceps": "трицепс", "abs": "пресс", "legs": "ноги", "glutes": "ягодицы"}
+WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 EQ_RANK = {"none": 0, "dumbbell": 1, "gym": 2}
 MAX_URL_PARAM = 1800  # запас до лимитов длины ссылки в кнопке
 
@@ -23,20 +27,34 @@ class InvalidData(ValueError):
 
 
 def validate_survey(data: dict) -> dict:
+    """Ответы опроса из мини-аппа. remind — время напоминания «ЧЧ:ММ» или None."""
     try:
+        wd = sorted({int(d) for d in data.get("wd") or [] if 0 <= int(d) <= 6})
         survey = {
             "goal": str(data["goal"]),
             "level": int(data["level"]),
             "eq": str(data["eq"]),
-            "days": int(data["days"]),
-            "avoid": [a for a in data.get("avoid", []) if a in AVOID],
+            "days": len(wd) if wd else int(data["days"]),
+            "avoid": [a for a in data.get("avoid") or [] if a in AVOID],
+            "focus": [m for m in data.get("focus") or [] if m in MUSCLES],
         }
     except (KeyError, TypeError, ValueError) as e:
         raise InvalidData("bad survey") from e
+    if wd:
+        survey["wd"] = wd
     if (survey["goal"] not in GOALS or survey["level"] not in LEVELS
             or survey["eq"] not in EQUIPMENT or not 2 <= survey["days"] <= 6):
         raise InvalidData("bad survey")
+    remind = data.get("remind")
+    if remind is not None and not re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d", str(remind)):
+        raise InvalidData("bad remind time")
+    survey["remind"] = remind
     return survey
+
+
+def plan_survey(survey: dict) -> dict:
+    """То, что нужно мини-аппу для следующих недель (без времени напоминания)."""
+    return {k: v for k, v in survey.items() if k != "remind"}
 
 
 def allowed_exercises(survey: dict) -> list[dict]:
@@ -80,7 +98,7 @@ def parse_ai_plan(raw: str, survey: dict) -> dict:
         days.append({"t": title, "x": items[:8]})
     if len(days) != survey["days"]:
         raise InvalidData("ИИ вернул не то число дней")
-    return {"v": 1, "g": survey["goal"], "d": days, "src": "ai"}
+    return {"v": 1, "g": survey["goal"], "w": 1, "s": plan_survey(survey), "d": days, "src": "ai"}
 
 
 def encode(obj: dict) -> str:
@@ -97,4 +115,4 @@ def plan_url_param(plan: dict | None, survey: dict) -> str:
             param = encode(plan)
         if len(param) <= MAX_URL_PARAM:
             return "p=" + param
-    return "s=" + encode(survey)
+    return "s=" + encode(plan_survey(survey))

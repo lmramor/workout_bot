@@ -55,3 +55,21 @@ L = [
  ("ir","Inverted_Row","Австралийские подтягивания","gym","pull","reps",1,[],"Тело прямое, тяни грудь к перекладине"),
  ("cc","Cable_Crunch","Скручивания на блоке","gym","core","reps",1,[],"Скручивайся корпусом, бёдра неподвижны"),
 ]
+
+# Какие мышцы работают: chest грудь, lats спина, delts плечи, biceps бицепс,
+# triceps трицепс, abs пресс, legs ноги, glutes ягодицы
+MUSCLES = {
+ "sq": ["legs","glutes"], "lu": ["legs","glutes"], "js": ["legs","glutes"], "gb": ["glutes"],
+ "sg": ["glutes"], "gk": ["glutes"], "su": ["legs","glutes"], "pu": ["chest","triceps","delts"],
+ "ip": ["chest","triceps"], "wp": ["chest","delts"], "dp": ["triceps"], "ps": ["chest","abs","delts"],
+ "pl": ["abs"], "sb": ["abs"], "cr": ["abs"], "rc": ["abs"], "xc": ["abs"], "rt": ["abs"],
+ "dbg": ["abs"], "mc": ["abs","legs"], "iw": ["abs"], "sm": ["lats","glutes"],
+ "gs": ["legs","glutes"], "dl": ["legs","glutes"], "rd": ["glutes","legs"], "cf": ["legs"],
+ "fp": ["chest","triceps"], "sp": ["delts","triceps"], "lr": ["delts"], "te": ["triceps"],
+ "tk": ["triceps"], "rw": ["lats","biceps"], "rf": ["delts","lats"], "bc": ["biceps"],
+ "hc": ["biceps"], "bs": ["legs","glutes"], "lp": ["legs","glutes"], "le": ["legs"],
+ "lc": ["legs"], "ht": ["glutes"], "rdl": ["glutes","legs"], "sc": ["legs"],
+ "bp": ["chest","triceps"], "ms": ["delts","triceps"], "bf": ["chest"], "tp": ["triceps"],
+ "lat": ["lats","biceps"], "crw": ["lats","biceps"], "fc": ["delts"], "pul": ["lats","biceps"],
+ "ir": ["lats","biceps"], "cc": ["abs"],
+}

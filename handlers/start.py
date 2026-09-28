@@ -1,47 +1,24 @@
 from aiogram import Router
-from aiogram.filters import Command, CommandStart
-from aiogram.types import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    KeyboardButton,
-    Message,
-    ReplyKeyboardMarkup,
-    WebAppInfo,
-)
+from aiogram.filters import Command, CommandObject, CommandStart
+from aiogram.types import Message
 
-from config import WEBAPP_URL
 from database.db import get_plan_param
+from handlers.keyboards import open_plan_keyboard, survey_keyboard
+from handlers.reminders import show_reminders
 
 router = Router()
 
 
-def webapp_url(param: str = "") -> str:
-    if not param:
-        return WEBAPP_URL
-    return WEBAPP_URL + ("&" if "?" in WEBAPP_URL else "?") + param
-
-
-def survey_keyboard() -> ReplyKeyboardMarkup:
-    # Опрос открывается именно с этой кнопки: только так мини-апп может вернуть ответы боту (sendData).
-    return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="📝 Составить план", web_app=WebAppInfo(url=webapp_url()))]],
-        resize_keyboard=True,
-        is_persistent=True,
-    )
-
-
-def open_plan_keyboard(param: str) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[[
-        InlineKeyboardButton(text="Открыть план", web_app=WebAppInfo(url=webapp_url(param))),
-    ]])
-
-
 @router.message(CommandStart())
-async def cmd_start(message: Message) -> None:
+async def cmd_start(message: Message, command: CommandObject) -> None:
+    # t.me/бот?start=remind — так мини-апп открывает настройки напоминаний
+    if command.args == "remind":
+        await show_reminders(message)
+        return
     await message.answer(
-        "Привет! Я составлю план тренировок на неделю и проведу по нему: "
+        "Привет! Я составлю план тренировок и проведу по нему: "
         "у каждого упражнения есть клип, таймер и отдых между подходами.\n\n"
-        "Нажми «📝 Составить план» внизу и ответь на пять вопросов.",
+        "Нажми «📝 Составить план» внизу и ответь на несколько вопросов.",
         reply_markup=survey_keyboard(),
     )
 
@@ -52,4 +29,4 @@ async def cmd_myplan(message: Message) -> None:
     if not param:
         await message.answer("Плана пока нет. Нажми «📝 Составить план» внизу.", reply_markup=survey_keyboard())
         return
-    await message.answer("Твой последний план:", reply_markup=open_plan_keyboard(param))
+    await message.answer("Твой план:", reply_markup=open_plan_keyboard(param))

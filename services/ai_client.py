@@ -4,7 +4,7 @@ from google import genai
 from google.genai import types
 
 from config import GEMINI_API_KEY
-from services.planner import AVOID, EQUIPMENT, GOALS, LEVELS, allowed_exercises, parse_ai_plan
+from services.planner import AVOID, EQUIPMENT, GOALS, LEVELS, MUSCLES, allowed_exercises, parse_ai_plan
 
 MODEL = "gemini-2.5-flash"
 TIMEOUT_SECONDS = 45
@@ -23,6 +23,7 @@ PROMPT = """\
 - где тренируется: {eq}
 - тренировочных дней в неделю: {days}
 - беречь: {avoid}
+- акцент на мышцы: {focus}
 
 Доступные упражнения:
 {exercises}
@@ -30,6 +31,7 @@ PROMPT = """\
 Правила:
 1. Ровно {days} дней, в каждом 5–7 упражнений, без повторов внутри дня.
 2. Сбалансируй дни по группам мышц, дай каждому дню короткое название (до 3 слов).
+   Если указан акцент, в каждом дне должно быть хотя бы одно упражнение на эти мышцы.
 3. sets — число подходов (2–5). amount — повторения для «повт» (5–25) или секунды для «сек» (15–90).
 4. Подбирай объём под цель и уровень.
 
@@ -40,7 +42,8 @@ PROMPT = """\
 
 async def generate_plan(survey: dict) -> dict:
     exercises = "\n".join(
-        f"[{e['k']}] {e['name']} — {CATEGORIES[e['cat']]}, {'сек' if e['mode'] == 'time' else 'повт'}"
+        f"[{e['k']}] {e['name']} — {CATEGORIES[e['cat']]}, мышцы: {', '.join(MUSCLES[m] for m in e['mus'])}, "
+        f"{'сек' if e['mode'] == 'time' else 'повт'}"
         for e in allowed_exercises(survey)
     )
     prompt = PROMPT.format(
@@ -49,6 +52,7 @@ async def generate_plan(survey: dict) -> dict:
         eq=EQUIPMENT[survey["eq"]],
         days=survey["days"],
         avoid=", ".join(AVOID[a] for a in survey["avoid"]) or "ничего",
+        focus=", ".join(MUSCLES[m] for m in survey["focus"]) or "всё тело равномерно",
         exercises=exercises,
     )
     response = await asyncio.wait_for(

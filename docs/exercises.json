@@ -9,6 +9,10 @@
   "avoid": [
    "knees"
   ],
+  "mus": [
+   "legs",
+   "glutes"
+  ],
   "cue": "Вес на пятках, колени смотрят туда же, куда носки",
   "src": "Bodyweight_Squat"
  },
@@ -21,6 +25,10 @@
   "lvl": 1,
   "avoid": [
    "knees"
+  ],
+  "mus": [
+   "legs",
+   "glutes"
   ],
   "cue": "Широкий шаг, заднее колено почти касается пола",
   "src": "Bodyweight_Walking_Lunge"
@@ -35,6 +43,10 @@
   "avoid": [
    "knees"
   ],
+  "mus": [
+   "legs",
+   "glutes"
+  ],
   "cue": "Приземляйся мягко и сразу уходи в присед",
   "src": "Freehand_Jump_Squat"
  },
@@ -46,6 +58,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "glutes"
+  ],
   "cue": "Поднимай таз за счёт ягодиц, не прогибай поясницу",
   "src": "Butt_Lift_Bridge"
  },
@@ -57,6 +72,9 @@
   "mode": "reps",
   "lvl": 2,
   "avoid": [],
+  "mus": [
+   "glutes"
+  ],
   "cue": "Таз держи ровно, не заваливай в сторону",
   "src": "Single_Leg_Glute_Bridge"
  },
@@ -68,6 +86,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "glutes"
+  ],
   "cue": "Отводи ногу назад-вверх, спина неподвижна",
   "src": "Glute_Kickback"
  },
@@ -80,6 +101,10 @@
   "lvl": 1,
   "avoid": [
    "knees"
+  ],
+  "mus": [
+   "legs",
+   "glutes"
   ],
   "cue": "Нужна устойчивая ступенька или скамья",
   "src": "Step-up_with_Knee_Raise"
@@ -95,6 +120,11 @@
    "wrists",
    "shoulders"
   ],
+  "mus": [
+   "chest",
+   "triceps",
+   "delts"
+  ],
   "cue": "Тело одной линией, локти под углом около 45°",
   "src": "Pushups"
  },
@@ -107,6 +137,10 @@
   "lvl": 1,
   "avoid": [
    "wrists"
+  ],
+  "mus": [
+   "chest",
+   "triceps"
   ],
   "cue": "Упрись в стол или диван: так легче, чем с пола",
   "src": "Incline_Push-Up"
@@ -122,6 +156,10 @@
    "wrists",
    "shoulders"
   ],
+  "mus": [
+   "chest",
+   "delts"
+  ],
   "cue": "Руки шире плеч, опускайся до касания грудью",
   "src": "Push-Up_Wide"
  },
@@ -135,6 +173,9 @@
   "avoid": [
    "shoulders",
    "wrists"
+  ],
+  "mus": [
+   "triceps"
   ],
   "cue": "Опора сзади: стул или диван, локти уводи назад",
   "src": "Bench_Dips"
@@ -150,6 +191,11 @@
    "wrists",
    "shoulders"
   ],
+  "mus": [
+   "chest",
+   "abs",
+   "delts"
+  ],
   "cue": "После отжимания разворачивайся в боковую планку",
   "src": "Push_Up_to_Side_Plank"
  },
@@ -161,6 +207,9 @@
   "mode": "time",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "abs"
+  ],
   "cue": "Не провисай в пояснице и не задирай таз",
   "src": "Plank"
  },
@@ -174,6 +223,9 @@
   "avoid": [
    "shoulders"
   ],
+  "mus": [
+   "abs"
+  ],
   "cue": "Тело одной линией, таз не опускай",
   "src": "Side_Bridge"
  },
@@ -185,6 +237,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "abs"
+  ],
   "cue": "Отрывай лопатки, не тяни голову руками",
   "src": "Crunches"
  },
@@ -198,6 +253,9 @@
   "avoid": [
    "back"
   ],
+  "mus": [
+   "abs"
+  ],
   "cue": "Подкручивай таз к груди без рывков",
   "src": "Reverse_Crunch"
  },
@@ -209,6 +267,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "abs"
+  ],
   "cue": "Тянись локтем к противоположному колену",
   "src": "Cross-Body_Crunch"
  },
@@ -222,6 +283,9 @@
   "avoid": [
    "back"
   ],
+  "mus": [
+   "abs"
+  ],
   "cue": "Поворачивай корпус, а не только руки",
   "src": "Russian_Twist"
  },
@@ -233,6 +297,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "abs"
+  ],
   "cue": "Поясница прижата, двигайся медленно",
   "src": "Dead_Bug"
  },
@@ -245,6 +312,10 @@
   "lvl": 1,
   "avoid": [
    "wrists"
+  ],
+  "mus": [
+   "abs",
+   "legs"
   ],
   "cue": "Держи темп, таз не поднимай",
   "src": "Mountain_Climbers"
@@ -259,6 +330,9 @@
   "avoid": [
    "back"
   ],
+  "mus": [
+   "abs"
+  ],
   "cue": "Иди руками в планку и обратно, ноги почти прямые",
   "src": "Inchworm"
  },
@@ -271,6 +345,10 @@
   "lvl": 1,
   "avoid": [
    "back"
+  ],
+  "mus": [
+   "lats",
+   "glutes"
   ],
   "cue": "Подними руки и ноги, задержись на секунду",
   "src": "Superman"
@@ -285,6 +363,10 @@
   "avoid": [
    "knees"
   ],
+  "mus": [
+   "legs",
+   "glutes"
+  ],
   "cue": "Держи гантель у груди, спина прямая",
   "src": "Goblet_Squat"
  },
@@ -297,6 +379,10 @@
   "lvl": 1,
   "avoid": [
    "knees"
+  ],
+  "mus": [
+   "legs",
+   "glutes"
   ],
   "cue": "Корпус вертикально, шаг широкий",
   "src": "Dumbbell_Lunges"
@@ -311,6 +397,10 @@
   "avoid": [
    "back"
   ],
+  "mus": [
+   "glutes",
+   "legs"
+  ],
   "cue": "Таз назад, спина прямая, гантели идут вдоль ног",
   "src": "Stiff-Legged_Dumbbell_Deadlift"
  },
@@ -322,6 +412,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "legs"
+  ],
   "cue": "Поднимайся максимально высоко, опускайся медленно",
   "src": "Standing_Dumbbell_Calf_Raise"
  },
@@ -334,6 +427,10 @@
   "lvl": 1,
   "avoid": [
    "shoulders"
+  ],
+  "mus": [
+   "chest",
+   "triceps"
   ],
   "cue": "Локти касаются пола, жми вверх над грудью",
   "src": "Dumbbell_Floor_Press"
@@ -348,6 +445,10 @@
   "avoid": [
    "shoulders"
   ],
+  "mus": [
+   "delts",
+   "triceps"
+  ],
   "cue": "Не прогибайся в пояснице, гантели над плечами",
   "src": "Dumbbell_Shoulder_Press"
  },
@@ -360,6 +461,9 @@
   "lvl": 1,
   "avoid": [
    "shoulders"
+  ],
+  "mus": [
+   "delts"
   ],
   "cue": "Поднимай до уровня плеч, локти чуть согнуты",
   "src": "Side_Lateral_Raise"
@@ -374,6 +478,9 @@
   "avoid": [
    "shoulders"
   ],
+  "mus": [
+   "triceps"
+  ],
   "cue": "Локти смотрят вперёд и не разъезжаются",
   "src": "Standing_Dumbbell_Triceps_Extension"
  },
@@ -385,6 +492,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "triceps"
+  ],
   "cue": "Плечо неподвижно, работает только предплечье",
   "src": "Tricep_Dumbbell_Kickback"
  },
@@ -397,6 +507,10 @@
   "lvl": 1,
   "avoid": [
    "back"
+  ],
+  "mus": [
+   "lats",
+   "biceps"
   ],
   "cue": "Спина прямая, тяни локти к поясу",
   "src": "Bent_Over_Two-Dumbbell_Row"
@@ -411,6 +525,10 @@
   "avoid": [
    "back"
   ],
+  "mus": [
+   "delts",
+   "lats"
+  ],
   "cue": "Своди лопатки, не раскачивайся",
   "src": "Reverse_Flyes"
  },
@@ -422,6 +540,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "biceps"
+  ],
   "cue": "Локти прижаты к корпусу, без рывков",
   "src": "Dumbbell_Bicep_Curl"
  },
@@ -433,6 +554,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "biceps"
+  ],
   "cue": "Ладони смотрят друг на друга",
   "src": "Alternate_Hammer_Curl"
  },
@@ -447,6 +571,10 @@
    "knees",
    "back"
   ],
+  "mus": [
+   "legs",
+   "glutes"
+  ],
   "cue": "Штанга на трапециях, опускайся до параллели",
   "src": "Barbell_Squat"
  },
@@ -459,6 +587,10 @@
   "lvl": 1,
   "avoid": [
    "knees"
+  ],
+  "mus": [
+   "legs",
+   "glutes"
   ],
   "cue": "Не выпрямляй колени до щелчка в верхней точке",
   "src": "Leg_Press"
@@ -473,6 +605,9 @@
   "avoid": [
    "knees"
   ],
+  "mus": [
+   "legs"
+  ],
   "cue": "Задержись на секунду вверху",
   "src": "Leg_Extensions"
  },
@@ -484,6 +619,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "legs"
+  ],
   "cue": "Таз прижат к скамье",
   "src": "Lying_Leg_Curls"
  },
@@ -495,6 +633,9 @@
   "mode": "reps",
   "lvl": 2,
   "avoid": [],
+  "mus": [
+   "glutes"
+  ],
   "cue": "Лопатки на скамье, в верхней точке сожми ягодицы",
   "src": "Barbell_Hip_Thrust"
  },
@@ -508,6 +649,10 @@
   "avoid": [
    "back"
   ],
+  "mus": [
+   "glutes",
+   "legs"
+  ],
   "cue": "Колени чуть согнуты, штанга скользит по бёдрам",
   "src": "Romanian_Deadlift"
  },
@@ -519,6 +664,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "legs"
+  ],
   "cue": "Полная амплитуда, медленно вниз",
   "src": "Seated_Calf_Raise"
  },
@@ -531,6 +679,10 @@
   "lvl": 1,
   "avoid": [
    "shoulders"
+  ],
+  "mus": [
+   "chest",
+   "triceps"
   ],
   "cue": "Лопатки сведены, штанга опускается на низ груди",
   "src": "Barbell_Bench_Press_-_Medium_Grip"
@@ -545,6 +697,10 @@
   "avoid": [
    "shoulders"
   ],
+  "mus": [
+   "delts",
+   "triceps"
+  ],
   "cue": "Спина прижата к спинке",
   "src": "Machine_Shoulder_Military_Press"
  },
@@ -558,6 +714,9 @@
   "avoid": [
    "shoulders"
   ],
+  "mus": [
+   "chest"
+  ],
   "cue": "Своди руки перед грудью, локти чуть согнуты",
   "src": "Butterfly"
  },
@@ -569,6 +728,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "triceps"
+  ],
   "cue": "Локти прижаты к корпусу",
   "src": "Triceps_Pushdown"
  },
@@ -582,6 +744,10 @@
   "avoid": [
    "shoulders"
   ],
+  "mus": [
+   "lats",
+   "biceps"
+  ],
   "cue": "Тяни к верху груди, не откидывайся сильно",
   "src": "Wide-Grip_Lat_Pulldown"
  },
@@ -593,6 +759,10 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "lats",
+   "biceps"
+  ],
   "cue": "Спина прямая, своди лопатки в конце",
   "src": "Seated_Cable_Rows"
  },
@@ -604,6 +774,9 @@
   "mode": "reps",
   "lvl": 2,
   "avoid": [],
+  "mus": [
+   "delts"
+  ],
   "cue": "Тяни к лицу, разводя концы каната",
   "src": "Face_Pull"
  },
@@ -617,6 +790,10 @@
   "avoid": [
    "shoulders"
   ],
+  "mus": [
+   "lats",
+   "biceps"
+  ],
   "cue": "Подбородок выше перекладины, без раскачки",
   "src": "Pullups"
  },
@@ -628,6 +805,10 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "lats",
+   "biceps"
+  ],
   "cue": "Тело прямое, тяни грудь к перекладине",
   "src": "Inverted_Row"
  },
@@ -639,6 +820,9 @@
   "mode": "reps",
   "lvl": 1,
   "avoid": [],
+  "mus": [
+   "abs"
+  ],
   "cue": "Скручивайся корпусом, бёдра неподвижны",
   "src": "Cable_Crunch"
  }
