@@ -20,7 +20,7 @@
   const sheetBody = document.getElementById("sheet-body");
   let LIB = [];
   let BY_KEY = {};
-  let state = { plan: null, done: [], day: 0 };
+  let state = { plan: null, done: [], day: 0, kcal: 0 };
 
   /* ---------- утилиты ---------- */
 
@@ -149,11 +149,20 @@
     return "h" + (x >>> 0).toString(36);
   }
 
-  /** Новый план. Если это тот же план из той же ссылки — сохраняем прогресс и текущую неделю. */
-  function setPlan(plan, id) {
+  /** Новый план из ответов опроса. Если ссылка та же — сохраняем прогресс и текущую неделю. */
+  function setPlanFromSurvey(survey, id) {
     if (state.plan && state.plan.id === id) return;
-    state = { plan: { ...plan, id }, done: [], day: 0 };
+    const s = P.validateSurvey(survey);
+    if (s.wd) s.wd = P.orderWeekdays(s.wd, todayIdx()); // «День 1» — ближайший тренировочный день
+    state = { plan: { ...P.buildPlan(LIB, s, 1), id }, done: [], day: 0, kcal: 0 };
     saveState();
+  }
+
+  /** Если сегодня день тренировки и он ещё не сделан — открываем его. */
+  function pickToday() {
+    const wd = state.plan.s && state.plan.s.wd;
+    const i = wd ? wd.indexOf(todayIdx()) : -1;
+    if (i >= 0 && i < state.plan.d.length && !state.done.includes(i)) state.day = i;
   }
 
   function surveyOf(plan) {
@@ -171,6 +180,7 @@
       focus: prev ? prev.focus.slice() : [],
       wd: prev && prev.wd ? prev.wd.slice() : [],
       avoid: prev ? prev.avoid.slice() : [],
+      kg: prev && prev.kg ? prev.kg : 70,
       remind: null,
     };
 
@@ -198,13 +208,15 @@
       { title: "Что хочешь прокачать?", lead: "Можно выбрать несколько: добавлю на них упражнения в каждый день.", kind: "focus" },
       { title: "В какие дни тренируешься?", lead: "Выбери от 2 до 6 дней.", kind: "days" },
       { title: "Что нужно беречь?", lead: "Уберу упражнения, которые нагружают эти места.", kind: "avoid" },
+      { title: "Сколько ты весишь?", lead: "Нужно, чтобы считать сожжённые калории. Можно примерно.", kind: "kg" },
     ];
     if (canSendData) {
       steps.push({
-        title: "Напоминать о тренировках?", lead: "Бот пришлёт сообщение в дни тренировок.", key: "remind",
-        options: [{ v: null, label: "Не напоминать", em: "🔕", wide: true }].concat(
-          ["07:00", "08:00", "09:00", "12:00", "18:00", "19:00", "20:00", "21:00"].map((t) => ({ v: t, label: t }))),
-        two: true,
+        title: "Напоминать о тренировках?", lead: "Бот спросит, во сколько, и будет писать в дни тренировок.", key: "remind",
+        options: [
+          { v: true, label: "Да, напоминай", sub: "время напишешь боту сам", em: "🔔" },
+          { v: false, label: "Не нужно", em: "🔕" },
+        ],
       });
     }
 
@@ -218,17 +230,12 @@
     let body;
 
     if (cur.key) {
-      // Один вариант: выбор сразу переводит на следующий вопрос
-      nextBtn.disabled = cur.key !== "remind" && s[cur.key] == null;
+      // Один вариант: выбираешь, потом «Далее»
+      nextBtn.disabled = s[cur.key] == null;
       body = h("div", { class: "opts" + (cur.two ? " two" : "") }, cur.options.map((o) => optButton({
         ...o,
         pressed: s[cur.key] === o.v,
-        onclick: () => {
-          s[cur.key] = o.v;
-          haptic("tap");
-          if (last) { go(step); return; }
-          setTimeout(() => go(step + 1), 160);
-        },
+        onclick: () => { s[cur.key] = o.v; haptic("tap"); go(step); },
       })));
     } else if (cur.kind === "focus") {
       const avail = new Set(P.availableMuscles(LIB, { ...s, days: 3, avoid: [], focus: [] }));
@@ -257,6 +264,16 @@
           ? h("span", {}, h("b", {}, `${n} ${plural(n, "тренировка", "тренировки", "тренировок")}`), " в неделю",
             n > 6 ? " — нужен хотя бы один день отдыха" : n < 2 ? " — выбери ещё хотя бы один день" : "")
           : "Нажми на дни, когда удобно заниматься"));
+    } else if (cur.kind === "kg") {
+      const input = h("input", {
+        class: "kg-input num", type: "number", inputmode: "numeric", min: 35, max: 200, value: s.kg, "aria-label": "Вес в килограммах",
+        oninput: (ev) => { const v = Number(ev.target.value); nextBtn.disabled = !(v >= 35 && v <= 200); if (!nextBtn.disabled) s.kg = Math.round(v); },
+      });
+      const stepKg = (d) => { s.kg = Math.min(200, Math.max(35, s.kg + d)); input.value = s.kg; nextBtn.disabled = false; haptic("tap"); };
+      body = h("div", { class: "kg" },
+        h("button", { class: "icon big", "aria-label": "Меньше", onclick: () => stepKg(-1) }, "−"),
+        h("label", { class: "kg-val" }, input, h("span", {}, "кг")),
+        h("button", { class: "icon big", "aria-label": "Больше", onclick: () => stepKg(1) }, "+"));
     } else {
       const toggle = (a) => {
         s.avoid = a === null ? [] : s.avoid.includes(a) ? s.avoid.filter((x) => x !== a) : s.avoid.concat(a);
@@ -273,19 +290,17 @@
       if (canSendData) {
         nextBtn.disabled = true;
         nextBtn.textContent = "Отправляю…";
-        tg.sendData(JSON.stringify({ ...survey, remind: s.remind || null })); // Telegram закроет мини-апп, план пришлёт бот
+        tg.sendData(JSON.stringify({ ...survey, remind: !!s.remind })); // Telegram закроет мини-апп, ссылку на план пришлёт бот
         return;
       }
-      setPlan(P.buildPlan(LIB, survey, 1), "local-" + Date.now());
+      setPlanFromSurvey(survey, "local-" + Date.now());
       haptic("success");
       renderPlan();
     }
 
-    const intro = step === 0 && !canSendData
-      ? h("p", { class: "note warm" }, inTelegram
-        ? "План соберётся по правилам. Чтобы его подобрал ИИ и включились напоминания, открой опрос кнопкой «📝 Составить план» в чате с ботом."
-        : ["Демо в браузере: план собирается по правилам. В Telegram упражнения подбирает ИИ — ",
-          h("a", { class: "link", href: `https://t.me/${BOT_USERNAME}` }, "@" + BOT_USERNAME)])
+    const intro = step === 0 && !inTelegram
+      ? h("p", { class: "note" }, "Демо в браузере. В Telegram план сохраняется, а бот напоминает о тренировках — ",
+        h("a", { class: "link", href: `https://t.me/${BOT_USERNAME}` }, "@" + BOT_USERNAME))
       : null;
 
     show(h("section", { class: "screen" },
@@ -299,7 +314,7 @@
 
   /* ---------- экран: план ---------- */
 
-  function renderPlan(backAnim) {
+  function renderPlan(backAnim, dir) {
     setBack(null);
     const plan = state.plan;
     const dayIdx = Math.min(state.day || 0, plan.d.length - 1);
@@ -308,13 +323,18 @@
     const wd = plan.s && plan.s.wd;
     const focus = plan.s ? plan.s.focus : [];
 
+    const kg = plan.s ? plan.s.kg : 70;
+    const est = P.estimate(LIB, day, plan.g, kg);
+    const isToday = (i) => wd && wd[i] === todayIdx();
+    const selectDay = (i) => {
+      if (i < 0 || i >= plan.d.length || i === dayIdx) return;
+      const d = i > dayIdx ? "next" : "prev";
+      state.day = i; saveState(); haptic("tap"); renderPlan(false, d);
+    };
     const tabs = h("div", { class: "tabs", role: "tablist" }, plan.d.map((d, i) =>
-      h("button", {
-        class: "tab", role: "tab", "aria-selected": String(i === dayIdx),
-        onclick: () => { state.day = i; saveState(); haptic("tap"); renderPlan(); },
-      },
-      h("b", {}, wd ? P.WEEKDAYS[wd[i]] : i + 1), wd ? `день ${i + 1}` : "день",
-      state.done.includes(i) ? h("span", { class: "dot", html: ICON.check, "aria-label": "выполнен" }) : null)));
+      h("button", { class: "tab", role: "tab", "aria-selected": String(i === dayIdx), onclick: () => selectDay(i) },
+        h("b", {}, wd ? P.WEEKDAYS[wd[i]] : i + 1), isToday(i) ? "сегодня" : `день ${i + 1}`,
+        state.done.includes(i) ? h("span", { class: "dot", html: ICON.check, "aria-label": "выполнен" }) : null)));
 
     const list = h("ol", { class: "list" }, day.x.map(([k, sets, amount]) =>
       h("li", {}, h("button", { class: "item", onclick: () => openExercise(k, sets, amount) },
@@ -322,23 +342,36 @@
         h("span", { class: "t" }, h("b", {}, BY_KEY[k].name), h("span", {}, amountText(k, sets, amount))),
         h("span", { class: "chev", html: ICON.chev })))));
 
-    const todayNote = wd && wd[dayIdx] === todayIdx() && !isDone ? h("p", { class: "note warm" }, "Сегодня по плану эта тренировка 💪") : null;
+    const dayBox = h("div", { class: "day" + (dir ? " slide-" + dir : "") },
+      h("p", { class: "day-title" }, day.t),
+      h("div", { class: "summary" },
+        isToday(dayIdx) && !isDone ? h("span", { class: "pill hot" }, "сегодня") : null,
+        isDone ? h("span", { class: "pill hot" }, "✓ выполнен") : null,
+        h("span", { class: "pill" }, `${day.x.length} ${plural(day.x.length, "упражнение", "упражнения", "упражнений")}`),
+        h("span", { class: "pill" }, `~${est.minutes} мин`),
+        h("span", { class: "pill" }, `~${est.kcal} ккал`),
+        focus.length ? h("span", { class: "pill" }, "акцент: " + focus.map((m) => P.MUSCLES[m].toLowerCase()).join(", ")) : null),
+      list);
+
+    // Свайп влево/вправо переключает дни
+    let sx = null, sy = 0;
+    dayBox.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    dayBox.addEventListener("touchend", (e) => {
+      if (sx === null) return;
+      const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      sx = null;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) selectDay(dayIdx + (dx < 0 ? 1 : -1));
+    });
 
     show(h("section", { class: "screen" },
       h("div", { class: "head" },
         h("div", {},
-          h("p", { class: "eyebrow" }, h("b", {}, `Неделя ${plan.w || 1}`), ` · ${P.GOALS[plan.g].title}`, plan.src === "ai" ? " · подобрано ИИ" : ""),
+          h("p", { class: "eyebrow" }, h("b", {}, `Неделя ${plan.w || 1}`), ` · ${P.GOALS[plan.g].title}`,
+            state.kcal ? ` · 🔥 ${Math.round(state.kcal)} ккал за неделю` : ""),
           h("h1", {}, "Твой план")),
         h("button", { class: "icon", "aria-label": "Меню", html: ICON.dots, onclick: openMenu })),
       tabs,
-      h("p", { class: "day-title" }, day.t),
-      h("div", { class: "summary" },
-        h("span", { class: "pill" }, `${day.x.length} ${plural(day.x.length, "упражнение", "упражнения", "упражнений")}`),
-        h("span", { class: "pill" }, `~${P.estimateMinutes(LIB, day, plan.g)} мин`),
-        h("span", { class: "pill" }, `отдых ${P.GOALS[plan.g].rest} с`),
-        focus.length ? h("span", { class: "pill hot" }, "акцент: " + focus.map((m) => P.MUSCLES[m].toLowerCase()).join(", ")) : null),
-      list,
-      isDone ? h("p", { class: "note" }, "✓ Этот день выполнен. Можно повторить или выбрать следующий.") : todayNote,
+      dayBox,
       h("div", { class: "bar" }, h("div", { class: "bar-in" },
         h("button", { class: "btn", onclick: () => startWorkout(day, { kind: "plan", dayIdx }) }, isDone ? "Повторить тренировку" : "Начать тренировку")))),
     { backAnim });
@@ -397,7 +430,10 @@
   function previewQuick(day) {
     openSheet(
       h("h3", {}, day.t),
-      h("p", { class: "muted" }, `${day.x.length} ${plural(day.x.length, "упражнение", "упражнения", "упражнений")} · ~${P.estimateMinutes(LIB, day, state.plan.g)} мин`),
+      h("p", { class: "muted" }, (() => {
+        const est = P.estimate(LIB, day, state.plan.g, state.plan.s ? state.plan.s.kg : 70);
+        return `${day.x.length} ${plural(day.x.length, "упражнение", "упражнения", "упражнений")} · ~${est.minutes} мин · ~${est.kcal} ккал`;
+      })()),
       h("ol", { class: "list", style: "margin-bottom:16px" }, day.x.map(([k, sets, amount]) =>
         h("li", { class: "item" }, clip(k, "thumb"),
           h("span", { class: "t" }, h("b", {}, BY_KEY[k].name), h("span", {}, amountText(k, sets, amount)))))),
@@ -446,6 +482,7 @@
       doneSteps: new Set(), skippedEx: new Set(),
       startedAt: now, pausedTotal: 0, stepStart: now, stepPaused: 0,
       pausedAt: null, lastBeep: null, timer: null, wake: null,
+      kcal: 0, lastTick: now, kg: state.plan.s ? state.plan.s.kg : 70,
     };
     if (inTelegram) {
       try { tg.enableClosingConfirmation(); } catch (e) {}
@@ -533,15 +570,26 @@
 
   const RING_LEN = 2 * Math.PI * 100;
 
+  /** Интенсивность прямо сейчас: работа — по типу упражнения, отдых и подготовка — лёгкая. */
+  function currentMet(c, t) {
+    if (c.type !== "work" || (c.mode === "time" && t < PREP_SECONDS)) return P.MET.rest;
+    return P.MET[BY_KEY[c.k].cat];
+  }
+
   function tick() {
     if (!wk) return;
     const now = performance.now();
     const c = cur();
     const el = (id) => document.getElementById(id);
+    const dt = (now - wk.lastTick) / 1000;
+    wk.lastTick = now;
     const total = el("wk-elapsed");
     if (total) total.textContent = fmt(totalElapsed(now));
     if (isPaused()) return;
     const t = stepElapsed(now);
+    wk.kcal += P.kcal(currentMet(c, t), wk.kg, Math.min(dt, 2));
+    const kc = el("wk-kcal");
+    if (kc) kc.textContent = Math.round(wk.kcal);
 
     if (c.type === "work" && c.mode === "reps") {
       const sw = el("wk-stopwatch");
@@ -554,7 +602,7 @@
       const left = ready ? PREP_SECONDS - t : c.amount - (t - PREP_SECONDS);
       const whole = Math.ceil(left);
       const phase = el("wk-phase"), count = el("wk-count"), wrap = el("wk-barwrap"), bar = el("wk-bar");
-      if (phase) { phase.textContent = ready ? "Приготовься" : "Работаем"; phase.classList.toggle("ready", ready); }
+      if (phase) { phase.textContent = ready ? "Приготовься: займи исходное положение" : "Работаем"; phase.classList.toggle("ready", ready); }
       if (count) { count.textContent = ready ? String(whole) : fmt(left); count.classList.toggle("ready", ready); }
       if (wrap) wrap.classList.toggle("ready", ready);
       if (bar) bar.style.width = Math.min(100, ready ? (t / PREP_SECONDS) * 100 : ((t - PREP_SECONDS) / c.amount) * 100) + "%";
@@ -586,6 +634,7 @@
     const topBar = h("div", { class: "wk-top" },
       h("button", { class: "icon", "aria-label": "Завершить тренировку", html: ICON.close, onclick: askFinish }),
       h("div", { class: "progress", "aria-hidden": "true" }, h("div", { style: `width:${(wk.idx / wk.steps.length) * 100}%` })),
+      h("span", { class: "kcal num", title: "Сожжено калорий" }, "🔥 ", h("span", { id: "wk-kcal" }, Math.round(wk.kcal))),
       h("span", { class: "elapsed num", id: "wk-elapsed" }, fmt(totalElapsed(performance.now()))));
     const controls = (skipLabel, onSkip) => h("div", { class: "controls" },
       control("back", "Назад", prevStep, { disabled: wk.idx <= firstWork }),
@@ -602,7 +651,7 @@
         h("div", { class: "wk-sub num" }, `Подход ${c.j + 1} из ${c.sets} · упражнение ${c.i + 1} из ${wk.day.x.length}`),
         h("div", { class: "cue" }, e.cue),
         timed
-          ? [h("div", {}, h("span", { class: "phase ready", id: "wk-phase" }, "Приготовься")),
+          ? [h("div", {}, h("span", { class: "phase ready", id: "wk-phase" }, "Приготовься: займи исходное положение")),
              h("div", { class: "timer ready", id: "wk-count" }, String(PREP_SECONDS)),
              h("div", { class: "bar-line ready", id: "wk-barwrap" }, h("div", { id: "wk-bar", style: "width:0" }))]
           : [h("div", {}, h("span", { class: "phase" }, "Повторения")),
@@ -615,17 +664,22 @@
       const nw = nextWork(wk.idx);
       const ne = nw && BY_KEY[nw.k];
       body = h("div", { class: "wk-body rest" + (paused ? " paused" : "") },
-        h("p", { class: "eyebrow", style: "margin-top:8px" }, c.type === "prep" ? "Приготовься" : paused ? "Отдых · пауза" : "Отдых"),
-        h("div", { class: "ring", html:
-          `<svg viewBox="0 0 220 220" aria-hidden="true"><circle class="track" cx="110" cy="110" r="100"/>` +
-          `<circle id="wk-ring" class="fill" cx="110" cy="110" r="100" stroke-dasharray="${RING_LEN}" stroke-dashoffset="0"/></svg>` +
-          `<div class="val" id="wk-count">${Number(c.dur)}</div>` }),
-        h("div", { class: "chips" },
-          h("button", { class: "chip", onclick: () => { c.dur += 15; wk.lastBeep = null; haptic("tap"); } }, "+15 с"),
-          h("button", { class: "chip", onclick: () => goTo(wk.idx + 1) }, c.type === "prep" ? "Начать сразу" : "Пропустить отдых")),
-        ne ? h("div", { class: "next" }, clip(nw.k, "thumb"),
-          h("div", { class: "t" }, h("span", {}, `Далее · подход ${nw.j + 1} из ${nw.sets}`), h("b", {}, ne.name)),
-          h("span", { class: "muted num" }, ne.mode === "time" ? `${nw.amount} с` : `${nw.amount} раз`)) : null,
+        h("div", { class: "rest-head" },
+          h("div", { class: "ring", html:
+            `<svg viewBox="0 0 220 220" aria-hidden="true"><circle class="track" cx="110" cy="110" r="100"/>` +
+            `<circle id="wk-ring" class="fill" cx="110" cy="110" r="100" stroke-dasharray="${RING_LEN}" stroke-dashoffset="0"/></svg>` +
+            `<div class="val" id="wk-count">${Number(c.dur)}</div>` }),
+          h("div", { class: "rest-info" },
+            h("p", { class: "phase" }, c.type === "prep" ? "Приготовься" : paused ? "Отдых · пауза" : "Отдых"),
+            h("div", { class: "chips" },
+              h("button", { class: "chip", onclick: () => { c.dur += 15; wk.lastBeep = null; haptic("tap"); } }, "+15 с"),
+              h("button", { class: "chip", onclick: () => goTo(wk.idx + 1) }, c.type === "prep" ? "Начать сразу" : "Пропустить")))),
+        ne ? h("div", { class: "up-next" },
+          h("p", { class: "up-label" }, c.type === "prep" ? "Первое упражнение" : nw.j === 0 ? "Следующее упражнение" : "Следующий подход"),
+          clip(nw.k, "clip"),
+          h("div", { class: "wk-name" }, ne.name),
+          h("div", { class: "wk-sub num" }, `Подход ${nw.j + 1} из ${nw.sets} · ${ne.mode === "time" ? nw.amount + " секунд" : nw.amount + " " + plural(nw.amount, "раз", "раза", "раз")}`),
+          h("div", { class: "cue" }, ne.cue)) : null,
         controls("Дальше", () => goTo(wk.idx + 1)));
     }
     show(h("section", { class: "wk" }, topBar, body), { keepScroll: true });
@@ -667,21 +721,23 @@
 
     // Отмечаем день сразу — даже если мини-апп закроют на экране итогов
     let weekNote = null;
-    if (w.ctx.kind === "plan" && setsDone) {
+    state.kcal = (state.kcal || 0) + w.kcal;
+    // День засчитывается, если дошёл до конца (даже с пропусками) или сделал хоть один подход
+    if (w.ctx.kind === "plan" && (completed || setsDone)) {
       if (!state.done.includes(w.ctx.dayIdx)) state.done.push(w.ctx.dayIdx);
       const allDone = state.plan.d.every((_, i) => state.done.includes(i));
       if (allDone) {
         const old = state.plan;
         const week = (old.w || 1) + 1;
         const next = old.s ? P.buildPlan(LIB, old.s, week) : { ...old, w: week };
-        state = { plan: { ...next, id: old.id }, done: [], day: 0 };
+        state = { plan: { ...next, id: old.id }, done: [], day: 0, kcal: 0 };
         weekNote = `🏆 Неделя ${week - 1} пройдена! Составил план на неделю ${week}: чуть больше нагрузки и новые упражнения.`;
       } else if (completed) {
         const nextDay = state.plan.d.findIndex((_, i) => !state.done.includes(i));
         state.day = nextDay >= 0 ? nextDay : 0;
       }
-      saveState();
     }
+    saveState();
 
     const title = completed ? "Поздравляем!" : "Хорошая работа!";
     const text = w.ctx.kind === "quick"
@@ -695,10 +751,11 @@
         h("h1", {}, title),
         h("p", {}, text)),
       h("div", { class: "stats" },
-        h("div", { class: "stat hot" }, h("b", {}, fmt(seconds)), h("span", {}, "время")),
+        h("div", { class: "stat hot" }, h("b", {}, `🔥 ${Math.round(w.kcal)}`), h("span", {}, "ккал сожжено")),
+        h("div", { class: "stat" }, h("b", {}, fmt(seconds)), h("span", {}, "время")),
         h("div", { class: "stat" }, h("b", {}, `${setsDone}/${w.totalSets}`), h("span", {}, "подходов")),
-        h("div", { class: "stat" }, h("b", {}, exDone), h("span", {}, "упражнений выполнено")),
-        h("div", { class: "stat" }, h("b", {}, w.skippedEx.size), h("span", {}, "пропущено"))),
+        h("div", { class: "stat" }, h("b", {}, `${exDone}/${w.day.x.length}`), h("span", {}, "упражнений")),
+        w.skippedEx.size ? h("div", { class: "stat wide" }, h("span", {}, `Пропущено упражнений: ${w.skippedEx.size} — день всё равно засчитан`)) : null),
       weekNote ? h("p", { class: "note warm" }, weekNote) : null,
       h("div", { class: "bar" }, h("div", { class: "bar-in" },
         h("button", { class: "btn ghost", onclick: () => renderQuick(true) }, "Ещё тренировка"),
@@ -707,8 +764,20 @@
 
   /* ---------- запуск ---------- */
 
+  // Пока мини-апп не развёрнут, низ окна Telegram может быть за краем экрана —
+  // поднимаем нижнюю панель на эту величину, чтобы кнопка всегда была видна.
+  function fitViewport() {
+    if (!inTelegram || !tg.viewportStableHeight) return;
+    const off = Math.max(0, window.innerHeight - tg.viewportStableHeight);
+    document.documentElement.style.setProperty("--bar-off", off + "px");
+  }
+
   async function init() {
-    if (inTelegram) { tg.ready(); tg.expand(); }
+    if (inTelegram) {
+      tg.ready(); tg.expand();
+      try { tg.onEvent("viewportChanged", fitViewport); } catch (e) {}
+      fitViewport();
+    }
     try {
       LIB = await (await fetch("exercises.json", { cache: "no-cache" })).json();
     } catch (e) {
@@ -719,18 +788,17 @@
     const saved = await loadState();
     if (saved && saved.plan) {
       try {
-        state = { plan: { ...P.sanitizePlan(LIB, saved.plan), id: saved.plan.id }, done: saved.done || [], day: saved.day || 0 };
+        state = { plan: { ...P.sanitizePlan(LIB, saved.plan), id: saved.plan.id }, done: saved.done || [], day: saved.day || 0, kcal: saved.kcal || 0 };
       } catch (e) { /* старый формат — начнём заново */ }
     }
 
     const params = new URLSearchParams(location.search);
     try {
-      if (params.get("p")) setPlan(P.sanitizePlan(LIB, P.decodeParam(params.get("p"))), hash(params.get("p")));
-      else if (params.get("s")) setPlan(P.buildPlan(LIB, P.decodeParam(params.get("s")), 1), hash(params.get("s")));
+      if (params.get("s")) setPlanFromSurvey(P.decodeParam(params.get("s")), hash(params.get("s")));
     } catch (e) {
       return renderSurvey();
     }
-    if (state.plan && !canSendData) renderPlan();
+    if (state.plan && !canSendData) { pickToday(); renderPlan(); }
     else renderSurvey();
   }
 

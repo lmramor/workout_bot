@@ -49,3 +49,15 @@ test("план из ссылки очищается от мусора", () => {
   assert.deepStrictEqual(p.d[0].x, [["pu", 6, 50]]);
   assert.throws(() => P.sanitizePlan(lib, { g: "fit", d: [{ x: [["nope", 1, 1]] }] }));
 });
+
+test("день 1 — ближайший тренировочный день, начиная с сегодня", () => {
+  assert.deepStrictEqual(P.orderWeekdays([0, 1, 3], 1), [1, 3, 0]); // вторник: Вт, Чт, потом Пн
+  assert.deepStrictEqual(P.orderWeekdays([0, 2, 4], 5), [0, 2, 4]); // суббота: следующий — Пн
+  assert.deepStrictEqual(P.validateSurvey({ goal: "fit", level: 1, eq: "none", wd: [3, 1, 5] }).wd, [3, 1, 5]);
+});
+
+test("калории растут с весом и интенсивностью", () => {
+  assert.ok(P.kcal(P.MET.cardio, 70, 60) > P.kcal(P.MET.core, 70, 60));
+  assert.ok(P.kcal(5, 90, 60) > P.kcal(5, 60, 60));
+  assert.strictEqual(Math.round(P.kcal(5, 70, 60) * 100) / 100, 6.13); // 5 × 3.5 × 70 / 200
+});

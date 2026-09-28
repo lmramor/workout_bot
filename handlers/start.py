@@ -1,5 +1,6 @@
 from aiogram import Router
 from aiogram.filters import Command, CommandObject, CommandStart
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from database.db import get_plan_param
@@ -10,14 +11,15 @@ router = Router()
 
 
 @router.message(CommandStart())
-async def cmd_start(message: Message, command: CommandObject) -> None:
+async def cmd_start(message: Message, command: CommandObject, state: FSMContext) -> None:
+    await state.clear()
     # t.me/бот?start=remind — так мини-апп открывает настройки напоминаний
     if command.args == "remind":
-        await show_reminders(message)
+        await show_reminders(message, state)
         return
     await message.answer(
         "Привет! Я составлю план тренировок и проведу по нему: "
-        "у каждого упражнения есть клип, таймер и отдых между подходами.\n\n"
+        "у каждого упражнения есть клип, таймер, отдых между подходами и счётчик калорий.\n\n"
         "Нажми «📝 Составить план» внизу и ответь на несколько вопросов.",
         reply_markup=survey_keyboard(),
     )

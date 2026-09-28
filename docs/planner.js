@@ -38,7 +38,8 @@
 
   function validateSurvey(s) {
     if (!s || typeof s !== "object") throw new Error("bad survey");
-    let wd = Array.isArray(s.wd) ? [...new Set(s.wd.map(Number))].filter((d) => d >= 0 && d <= 6).sort() : null;
+    // Порядок дней важен: первый в списке — «День 1»
+    const wd = Array.isArray(s.wd) ? [...new Set(s.wd.map(Number))].filter((d) => d >= 0 && d <= 6) : null;
     const out = {
       goal: String(s.goal),
       level: Number(s.level),
@@ -46,12 +47,28 @@
       days: wd && wd.length ? wd.length : Number(s.days),
       avoid: Array.isArray(s.avoid) ? s.avoid.map(String).filter((a) => a in AVOID) : [],
       focus: Array.isArray(s.focus) ? s.focus.map(String).filter((m) => m in MUSCLES) : [],
+      kg: Math.min(200, Math.max(35, Math.round(Number(s.kg) || 70))),
     };
     if (wd && wd.length) out.wd = wd;
     if (!(out.goal in GOALS) || !(out.level in LEVELS) || !(out.eq in EQUIPMENT) || !(out.days in SPLITS)) {
       throw new Error("bad survey");
     }
     return out;
+  }
+
+  /** Дни недели по порядку, начиная с ближайшего к сегодняшнему (0 = понедельник). */
+  function orderWeekdays(wd, today) {
+    const sorted = [...wd].sort((a, b) => a - b);
+    const i = sorted.findIndex((d) => d >= today);
+    return i <= 0 ? sorted : sorted.slice(i).concat(sorted.slice(0, i));
+  }
+
+  // Интенсивность нагрузки (MET) для оценки калорий
+  const MET = { legs: 5.5, push: 4.5, pull: 4.5, core: 3.8, cardio: 8.0, rest: 1.8 };
+
+  /** Калории за время: ккал/мин = MET × 3.5 × вес / 200 (стандартная формула). */
+  function kcal(met, kg, seconds) {
+    return (met * 3.5 * kg / 200) * (seconds / 60);
   }
 
   /** Упражнения, доступные пользователю: по инвентарю, уровню и ограничениям. */
@@ -127,7 +144,7 @@
       }
       return { t: t.title, x: items };
     });
-    return { v: 1, g: s.goal, w: week, s, d: days, src: "rules" };
+    return { v: 1, g: s.goal, w: week, s, d: days };
   }
 
   /** Быстрая тренировка на одну мышцу — чтобы сделать ещё одну сразу после основной. */
@@ -158,7 +175,7 @@
         ]),
     })).filter((d) => d.x.length);
     if (!days.length) throw new Error("empty plan");
-    const out = { v: 1, g: p.g, w: clamp(p.w || 1, 1, 52), d: days, src: p.src === "ai" ? "ai" : "rules" };
+    const out = { v: 1, g: p.g, w: clamp(p.w || 1, 1, 52), d: days };
     try { if (p.s) out.s = validateSurvey(p.s); } catch (e) { /* план без опроса тоже годится */ }
     return out;
   }
@@ -171,20 +188,24 @@
     return JSON.parse(new TextDecoder().decode(bytes));
   }
 
-  /** Примерная длительность дня в минутах. */
-  function estimateMinutes(lib, day, goal) {
+  /** Примерная длительность дня в минутах и калории. */
+  function estimate(lib, day, goal, kg) {
     const byKey = Object.fromEntries(lib.map((e) => [e.k, e]));
     const rest = GOALS[goal].rest;
-    let sec = 0;
+    let sec = 0, cal = 0;
     for (const [k, sets, amount] of day.x) {
-      const work = byKey[k].mode === "time" ? amount + 5 : amount * 3;
-      sec += sets * work + sets * rest;
+      const e = byKey[k];
+      const work = e.mode === "time" ? amount : amount * 3;
+      sec += sets * (work + rest);
+      cal += kcal(MET[e.cat], kg || 70, sets * work) + kcal(MET.rest, kg || 70, sets * rest);
     }
-    return Math.max(5, Math.round(sec / 60 / 5) * 5);
+    return { minutes: Math.max(5, Math.round(sec / 60 / 5) * 5), kcal: Math.round(cal / 5) * 5 };
   }
+  const estimateMinutes = (lib, day, goal) => estimate(lib, day, goal).minutes;
 
   const api = {
     GOALS, LEVELS, EQUIPMENT, AVOID, MUSCLES, WEEKDAYS,
+    MET, kcal, orderWeekdays, estimate,
     validateSurvey, allowedExercises, availableMuscles, buildPlan, buildQuick, sanitizePlan, decodeParam, estimateMinutes,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

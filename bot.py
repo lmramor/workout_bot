@@ -4,9 +4,10 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand, MenuButtonWebApp, WebAppInfo
 
-from config import BOT_TOKEN, WEBAPP_URL
+from config import BOT_TOKEN
 from database.db import init_db
 from handlers import reminders, start, webapp
+from handlers.keyboards import webapp_url
 from services.reminders import reminder_loop
 
 
@@ -21,7 +22,7 @@ async def main() -> None:
     dp.include_router(reminders.router)
 
     # Кнопка «Мой план» слева от поля ввода: мини-апп сам покажет последний сохранённый план.
-    await bot.set_chat_menu_button(menu_button=MenuButtonWebApp(text="Мой план", web_app=WebAppInfo(url=WEBAPP_URL)))
+    await bot.set_chat_menu_button(menu_button=MenuButtonWebApp(text="Мой план", web_app=WebAppInfo(url=webapp_url())))
     await bot.set_my_commands([
         BotCommand(command="start", description="Начать и составить план"),
         BotCommand(command="myplan", description="Открыть последний план"),

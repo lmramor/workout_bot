@@ -1,4 +1,4 @@
-/* Фон и текст берутся из темы Telegram, акцентные цвета — свои. */
+/* Фон и текст берутся из темы Telegram, акцент — один оранжевый. */
 :root {
   --bg: var(--tg-theme-bg-color, #ffffff);
   --bg2: var(--tg-theme-secondary-bg-color, #f4f3f1);
@@ -7,8 +7,7 @@
   --accent: #ff6b3d;
   --accent-text: #ffffff;
   --accent-soft: color-mix(in srgb, var(--accent) 13%, var(--bg));
-  --rest: #1fa99a;
-  --rest-soft: color-mix(in srgb, var(--rest) 13%, var(--bg));
+  --accent-mid: color-mix(in srgb, var(--accent) 55%, var(--bg));
   --line: color-mix(in srgb, var(--text) 10%, transparent);
   --radius: 16px;
   --safe-b: env(safe-area-inset-bottom, 0px);
@@ -20,7 +19,6 @@
     --text: var(--tg-theme-text-color, #f3f2ef);
     --hint: var(--tg-theme-hint-color, #8f8c87);
     --accent: #ff7a4f;
-    --rest: #2cc0ae;
   }
 }
 
@@ -35,7 +33,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 [hidden] { display: none !important; }
 
-#app { max-width: 520px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; }
+#app { max-width: 520px; margin: 0 auto; min-height: 100vh; min-height: var(--tg-viewport-stable-height, 100dvh); }
 .screen { padding: 16px 16px calc(112px + var(--safe-b)); animation: in .25s ease both; }
 .screen.back-anim { animation-name: in-back; }
 @keyframes in { from { opacity: 0; transform: translateX(14px); } }
@@ -85,7 +83,7 @@ h2 { font-size: 15px; font-weight: 600; margin: 24px 0 10px; }
 
 /* Нижняя панель с главной кнопкой */
 .bar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  position: fixed; left: 0; right: 0; bottom: var(--bar-off, 0px); z-index: 5;
   padding: 16px 16px calc(16px + var(--safe-b));
   background: linear-gradient(to top, var(--bg) 70%, transparent);
 }
@@ -111,7 +109,7 @@ h2 { font-size: 15px; font-weight: 600; margin: 24px 0 10px; }
 }
 .tab b { display: block; font-size: 15px; }
 .tab[aria-selected="true"] { background: var(--accent); color: var(--accent-text); }
-.tab .dot { position: absolute; top: 5px; right: 5px; width: 14px; height: 14px; border-radius: 7px; background: var(--rest); color: #fff; display: grid; place-items: center; }
+.tab .dot { position: absolute; top: 4px; right: 4px; width: 14px; height: 14px; border-radius: 7px; background: var(--accent); color: #fff; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--bg); }
 .tab .dot svg { width: 9px; height: 9px; }
 .day-title { font-size: 22px; font-weight: 700; letter-spacing: -.01em; margin: 0 0 4px; }
 .summary { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
@@ -123,8 +121,27 @@ h2 { font-size: 15px; font-weight: 600; margin: 24px 0 10px; }
 .item .t b { display: block; font-weight: 500; font-size: 15px; }
 .item .t span { color: var(--hint); font-size: 13px; font-variant-numeric: tabular-nums; }
 .chev { color: var(--hint); }
-.note { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--rest-soft); font-size: 14px; }
+.note { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); font-size: 14px; }
 .note.warm { background: var(--accent-soft); }
+
+/* Переключение дней свайпом */
+.day { touch-action: pan-y; }
+.day.slide-next { animation: slide-next .22s ease both; }
+.day.slide-prev { animation: slide-prev .22s ease both; }
+@keyframes slide-next { from { opacity: 0; transform: translateX(28px); } }
+@keyframes slide-prev { from { opacity: 0; transform: translateX(-28px); } }
+
+/* Вес */
+.kg { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 28px; }
+.icon.big { width: 56px; height: 56px; border-radius: 28px; font-size: 28px; line-height: 1; color: var(--accent); background: var(--accent-soft); }
+.kg-val { display: flex; align-items: baseline; gap: 6px; }
+.kg-val span { font-size: 20px; color: var(--hint); }
+.kg-input {
+  width: 3.2ch; font-family: inherit; font-weight: 300; font-size: 64px; line-height: 1; letter-spacing: -.03em; text-align: center; color: var(--text);
+  background: none; border: 0; border-bottom: 2px solid var(--accent); padding: 0; -moz-appearance: textfield;
+}
+.kg-input:focus { outline: none; }
+.kg-input::-webkit-outer-spin-button, .kg-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 /* Клип упражнения: два кадра, плавно сменяющие друг друга */
 .clip, .thumb { position: relative; overflow: hidden; background: var(--bg2); }
@@ -158,23 +175,24 @@ h2 { font-size: 15px; font-weight: 600; margin: 24px 0 10px; }
 @keyframes up { from { transform: translateY(100%); } }
 
 /* Тренировка */
-.wk { padding: 12px 16px calc(24px + var(--safe-b)); display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+.wk { padding: 12px 16px calc(20px + var(--safe-b) + var(--bar-off, 0px)); display: flex; flex-direction: column; min-height: 100vh; min-height: var(--tg-viewport-stable-height, 100dvh); }
 .wk-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .progress { flex: 1; height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
 .progress div { height: 100%; background: var(--accent); transition: width .3s ease; }
-.elapsed { font-size: 14px; color: var(--hint); min-width: 44px; text-align: right; }
+.elapsed { font-size: 14px; color: var(--hint); min-width: 40px; text-align: right; }
+.kcal { font-size: 14px; color: var(--accent); font-weight: 600; white-space: nowrap; }
 .wk-body { flex: 1; display: flex; flex-direction: column; }
 .wk-name { font-size: 24px; font-weight: 700; letter-spacing: -.02em; margin: 18px 0 2px; }
 .wk-sub { color: var(--hint); font-size: 15px; }
 .cue { font-size: 14px; color: var(--hint); margin-top: 8px; }
 .phase { display: inline-block; margin-top: 18px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-.phase.ready { color: var(--rest); }
+.phase.ready { color: var(--accent); background: var(--accent-soft); padding: 4px 10px; border-radius: 8px; letter-spacing: .04em; }
 .timer { font-size: 72px; font-weight: 300; letter-spacing: -.04em; line-height: 1; margin: 6px 0 6px; font-variant-numeric: tabular-nums; }
-.timer.ready { color: var(--rest); }
+.timer.ready { color: var(--accent-mid); }
 .timer small { font-size: 22px; letter-spacing: 0; color: var(--hint); margin-left: 6px; }
 .bar-line { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; margin-top: 10px; }
 .bar-line div { height: 100%; background: var(--accent); }
-.bar-line.ready div { background: var(--rest); }
+.bar-line.ready div { background: var(--accent-mid); }
 .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 20px; }
 .ctl { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; color: var(--hint); width: 72px; }
 .ctl .icon { width: 52px; height: 52px; border-radius: 26px; }
@@ -184,20 +202,25 @@ h2 { font-size: 15px; font-weight: 600; margin: 24px 0 10px; }
 .wk-done { margin-top: 16px; display: flex; }
 .pause-tag { display: inline-block; margin-top: 12px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--hint); }
 
-/* Отдых */
-.rest { text-align: center; }
-.rest .eyebrow { color: var(--rest); font-weight: 600; font-size: 14px; }
-.ring { position: relative; width: 220px; height: 220px; margin: 24px auto 8px; }
+/* Отдых и подготовка: таймер сверху, крупно — следующее упражнение */
+.rest-head { display: flex; align-items: center; gap: 18px; margin: 4px 0 16px; }
+.rest-info { flex: 1; }
+.rest-info .phase { margin: 0 0 10px; font-size: 14px; }
+.rest-info .chips { justify-content: flex-start; margin: 0; }
+.up-label { margin: 0 0 8px; font-size: 13px; color: var(--hint); }
+.up-next .wk-name { margin-top: 12px; }
+.ring { position: relative; width: 116px; height: 116px; flex: 0 0 auto; }
 .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .ring circle { fill: none; stroke-width: 7; }
-.ring .track { stroke: var(--rest-soft); }
-.ring .fill { stroke: var(--rest); stroke-linecap: round; transition: stroke-dashoffset .25s linear; }
-.ring .val { position: absolute; inset: 0; display: grid; place-items: center; font-size: 56px; font-weight: 300; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.ring circle { stroke-width: 12; }
+.ring .track { stroke: var(--accent-soft); }
+.ring .fill { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .25s linear; }
+.ring .val { position: absolute; inset: 0; display: grid; place-items: center; font-size: 40px; font-weight: 400; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 .next { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); background: var(--bg2); text-align: left; margin-top: 18px; }
 .next .t { flex: 1; min-width: 0; }
 .next .t span { display: block; font-size: 12px; color: var(--hint); }
 .chips { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
-.chip { height: 38px; padding: 0 16px; border-radius: 19px; background: var(--rest-soft); color: var(--rest); font-size: 14px; font-weight: 500; }
+.chip { height: 38px; padding: 0 16px; border-radius: 19px; background: var(--accent-soft); color: var(--accent); font-size: 14px; font-weight: 500; }
 
 /* Итог */
 .hero { text-align: center; padding-top: 24px; }
@@ -211,6 +234,7 @@ h2 { font-size: 15px; font-weight: 600; margin: 24px 0 10px; }
 .stat span { font-size: 13px; color: var(--hint); }
 .stat.hot { background: var(--accent-soft); }
 .stat.hot b { color: var(--accent); }
+.stat.wide { grid-column: 1 / -1; padding: 10px 14px; }
 
 @media (prefers-reduced-motion: reduce) {
   .clip i + i { animation-duration: 4s; }
