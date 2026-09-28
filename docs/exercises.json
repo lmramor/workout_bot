@@ -1,0 +1,645 @@
+[
+ {
+  "k": "sq",
+  "name": "Приседания",
+  "eq": "none",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "knees"
+  ],
+  "cue": "Вес на пятках, колени смотрят туда же, куда носки",
+  "src": "Bodyweight_Squat"
+ },
+ {
+  "k": "lu",
+  "name": "Выпады",
+  "eq": "none",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "knees"
+  ],
+  "cue": "Широкий шаг, заднее колено почти касается пола",
+  "src": "Bodyweight_Walking_Lunge"
+ },
+ {
+  "k": "js",
+  "name": "Приседания с выпрыгиванием",
+  "eq": "none",
+  "cat": "cardio",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [
+   "knees"
+  ],
+  "cue": "Приземляйся мягко и сразу уходи в присед",
+  "src": "Freehand_Jump_Squat"
+ },
+ {
+  "k": "gb",
+  "name": "Ягодичный мостик",
+  "eq": "none",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Поднимай таз за счёт ягодиц, не прогибай поясницу",
+  "src": "Butt_Lift_Bridge"
+ },
+ {
+  "k": "sg",
+  "name": "Мостик на одной ноге",
+  "eq": "none",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [],
+  "cue": "Таз держи ровно, не заваливай в сторону",
+  "src": "Single_Leg_Glute_Bridge"
+ },
+ {
+  "k": "gk",
+  "name": "Отведение ноги назад",
+  "eq": "none",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Отводи ногу назад-вверх, спина неподвижна",
+  "src": "Glute_Kickback"
+ },
+ {
+  "k": "su",
+  "name": "Зашагивание с подъёмом колена",
+  "eq": "none",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "knees"
+  ],
+  "cue": "Нужна устойчивая ступенька или скамья",
+  "src": "Step-up_with_Knee_Raise"
+ },
+ {
+  "k": "pu",
+  "name": "Отжимания",
+  "eq": "none",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "wrists",
+   "shoulders"
+  ],
+  "cue": "Тело одной линией, локти под углом около 45°",
+  "src": "Pushups"
+ },
+ {
+  "k": "ip",
+  "name": "Отжимания от опоры",
+  "eq": "none",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "wrists"
+  ],
+  "cue": "Упрись в стол или диван: так легче, чем с пола",
+  "src": "Incline_Push-Up"
+ },
+ {
+  "k": "wp",
+  "name": "Широкие отжимания",
+  "eq": "none",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [
+   "wrists",
+   "shoulders"
+  ],
+  "cue": "Руки шире плеч, опускайся до касания грудью",
+  "src": "Push-Up_Wide"
+ },
+ {
+  "k": "dp",
+  "name": "Обратные отжимания",
+  "eq": "none",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "shoulders",
+   "wrists"
+  ],
+  "cue": "Опора сзади: стул или диван, локти уводи назад",
+  "src": "Bench_Dips"
+ },
+ {
+  "k": "ps",
+  "name": "Отжимание с боковой планкой",
+  "eq": "none",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [
+   "wrists",
+   "shoulders"
+  ],
+  "cue": "После отжимания разворачивайся в боковую планку",
+  "src": "Push_Up_to_Side_Plank"
+ },
+ {
+  "k": "pl",
+  "name": "Планка",
+  "eq": "none",
+  "cat": "core",
+  "mode": "time",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Не провисай в пояснице и не задирай таз",
+  "src": "Plank"
+ },
+ {
+  "k": "sb",
+  "name": "Боковая планка",
+  "eq": "none",
+  "cat": "core",
+  "mode": "time",
+  "lvl": 1,
+  "avoid": [
+   "shoulders"
+  ],
+  "cue": "Тело одной линией, таз не опускай",
+  "src": "Side_Bridge"
+ },
+ {
+  "k": "cr",
+  "name": "Скручивания",
+  "eq": "none",
+  "cat": "core",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Отрывай лопатки, не тяни голову руками",
+  "src": "Crunches"
+ },
+ {
+  "k": "rc",
+  "name": "Обратные скручивания",
+  "eq": "none",
+  "cat": "core",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "back"
+  ],
+  "cue": "Подкручивай таз к груди без рывков",
+  "src": "Reverse_Crunch"
+ },
+ {
+  "k": "xc",
+  "name": "Скручивания с поворотом",
+  "eq": "none",
+  "cat": "core",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Тянись локтем к противоположному колену",
+  "src": "Cross-Body_Crunch"
+ },
+ {
+  "k": "rt",
+  "name": "Русские скручивания",
+  "eq": "none",
+  "cat": "core",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [
+   "back"
+  ],
+  "cue": "Поворачивай корпус, а не только руки",
+  "src": "Russian_Twist"
+ },
+ {
+  "k": "dbg",
+  "name": "Мёртвый жук",
+  "eq": "none",
+  "cat": "core",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Поясница прижата, двигайся медленно",
+  "src": "Dead_Bug"
+ },
+ {
+  "k": "mc",
+  "name": "Скалолаз",
+  "eq": "none",
+  "cat": "cardio",
+  "mode": "time",
+  "lvl": 1,
+  "avoid": [
+   "wrists"
+  ],
+  "cue": "Держи темп, таз не поднимай",
+  "src": "Mountain_Climbers"
+ },
+ {
+  "k": "iw",
+  "name": "Гусеница",
+  "eq": "none",
+  "cat": "cardio",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "back"
+  ],
+  "cue": "Иди руками в планку и обратно, ноги почти прямые",
+  "src": "Inchworm"
+ },
+ {
+  "k": "sm",
+  "name": "Супермен",
+  "eq": "none",
+  "cat": "pull",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "back"
+  ],
+  "cue": "Подними руки и ноги, задержись на секунду",
+  "src": "Superman"
+ },
+ {
+  "k": "gs",
+  "name": "Гоблет-присед",
+  "eq": "dumbbell",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "knees"
+  ],
+  "cue": "Держи гантель у груди, спина прямая",
+  "src": "Goblet_Squat"
+ },
+ {
+  "k": "dl",
+  "name": "Выпады с гантелями",
+  "eq": "dumbbell",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "knees"
+  ],
+  "cue": "Корпус вертикально, шаг широкий",
+  "src": "Dumbbell_Lunges"
+ },
+ {
+  "k": "rd",
+  "name": "Румынская тяга с гантелями",
+  "eq": "dumbbell",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [
+   "back"
+  ],
+  "cue": "Таз назад, спина прямая, гантели идут вдоль ног",
+  "src": "Stiff-Legged_Dumbbell_Deadlift"
+ },
+ {
+  "k": "cf",
+  "name": "Подъёмы на носки с гантелями",
+  "eq": "dumbbell",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Поднимайся максимально высоко, опускайся медленно",
+  "src": "Standing_Dumbbell_Calf_Raise"
+ },
+ {
+  "k": "fp",
+  "name": "Жим гантелей лёжа на полу",
+  "eq": "dumbbell",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "shoulders"
+  ],
+  "cue": "Локти касаются пола, жми вверх над грудью",
+  "src": "Dumbbell_Floor_Press"
+ },
+ {
+  "k": "sp",
+  "name": "Жим гантелей над головой",
+  "eq": "dumbbell",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "shoulders"
+  ],
+  "cue": "Не прогибайся в пояснице, гантели над плечами",
+  "src": "Dumbbell_Shoulder_Press"
+ },
+ {
+  "k": "lr",
+  "name": "Махи гантелями в стороны",
+  "eq": "dumbbell",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "shoulders"
+  ],
+  "cue": "Поднимай до уровня плеч, локти чуть согнуты",
+  "src": "Side_Lateral_Raise"
+ },
+ {
+  "k": "te",
+  "name": "Французский жим стоя",
+  "eq": "dumbbell",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "shoulders"
+  ],
+  "cue": "Локти смотрят вперёд и не разъезжаются",
+  "src": "Standing_Dumbbell_Triceps_Extension"
+ },
+ {
+  "k": "tk",
+  "name": "Разгибание руки в наклоне",
+  "eq": "dumbbell",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Плечо неподвижно, работает только предплечье",
+  "src": "Tricep_Dumbbell_Kickback"
+ },
+ {
+  "k": "rw",
+  "name": "Тяга гантелей в наклоне",
+  "eq": "dumbbell",
+  "cat": "pull",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "back"
+  ],
+  "cue": "Спина прямая, тяни локти к поясу",
+  "src": "Bent_Over_Two-Dumbbell_Row"
+ },
+ {
+  "k": "rf",
+  "name": "Разведение гантелей в наклоне",
+  "eq": "dumbbell",
+  "cat": "pull",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "back"
+  ],
+  "cue": "Своди лопатки, не раскачивайся",
+  "src": "Reverse_Flyes"
+ },
+ {
+  "k": "bc",
+  "name": "Сгибания на бицепс",
+  "eq": "dumbbell",
+  "cat": "pull",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Локти прижаты к корпусу, без рывков",
+  "src": "Dumbbell_Bicep_Curl"
+ },
+ {
+  "k": "hc",
+  "name": "Молотковые сгибания",
+  "eq": "dumbbell",
+  "cat": "pull",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Ладони смотрят друг на друга",
+  "src": "Alternate_Hammer_Curl"
+ },
+ {
+  "k": "bs",
+  "name": "Приседания со штангой",
+  "eq": "gym",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [
+   "knees",
+   "back"
+  ],
+  "cue": "Штанга на трапециях, опускайся до параллели",
+  "src": "Barbell_Squat"
+ },
+ {
+  "k": "lp",
+  "name": "Жим ногами",
+  "eq": "gym",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "knees"
+  ],
+  "cue": "Не выпрямляй колени до щелчка в верхней точке",
+  "src": "Leg_Press"
+ },
+ {
+  "k": "le",
+  "name": "Разгибание ног в тренажёре",
+  "eq": "gym",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "knees"
+  ],
+  "cue": "Задержись на секунду вверху",
+  "src": "Leg_Extensions"
+ },
+ {
+  "k": "lc",
+  "name": "Сгибание ног лёжа",
+  "eq": "gym",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Таз прижат к скамье",
+  "src": "Lying_Leg_Curls"
+ },
+ {
+  "k": "ht",
+  "name": "Ягодичный мост со штангой",
+  "eq": "gym",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [],
+  "cue": "Лопатки на скамье, в верхней точке сожми ягодицы",
+  "src": "Barbell_Hip_Thrust"
+ },
+ {
+  "k": "rdl",
+  "name": "Румынская тяга со штангой",
+  "eq": "gym",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [
+   "back"
+  ],
+  "cue": "Колени чуть согнуты, штанга скользит по бёдрам",
+  "src": "Romanian_Deadlift"
+ },
+ {
+  "k": "sc",
+  "name": "Подъёмы на носки сидя",
+  "eq": "gym",
+  "cat": "legs",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Полная амплитуда, медленно вниз",
+  "src": "Seated_Calf_Raise"
+ },
+ {
+  "k": "bp",
+  "name": "Жим штанги лёжа",
+  "eq": "gym",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "shoulders"
+  ],
+  "cue": "Лопатки сведены, штанга опускается на низ груди",
+  "src": "Barbell_Bench_Press_-_Medium_Grip"
+ },
+ {
+  "k": "ms",
+  "name": "Жим на плечи в тренажёре",
+  "eq": "gym",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "shoulders"
+  ],
+  "cue": "Спина прижата к спинке",
+  "src": "Machine_Shoulder_Military_Press"
+ },
+ {
+  "k": "bf",
+  "name": "Сведение рук в тренажёре",
+  "eq": "gym",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "shoulders"
+  ],
+  "cue": "Своди руки перед грудью, локти чуть согнуты",
+  "src": "Butterfly"
+ },
+ {
+  "k": "tp",
+  "name": "Разгибания на блоке",
+  "eq": "gym",
+  "cat": "push",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Локти прижаты к корпусу",
+  "src": "Triceps_Pushdown"
+ },
+ {
+  "k": "lat",
+  "name": "Тяга верхнего блока",
+  "eq": "gym",
+  "cat": "pull",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [
+   "shoulders"
+  ],
+  "cue": "Тяни к верху груди, не откидывайся сильно",
+  "src": "Wide-Grip_Lat_Pulldown"
+ },
+ {
+  "k": "crw",
+  "name": "Тяга нижнего блока",
+  "eq": "gym",
+  "cat": "pull",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Спина прямая, своди лопатки в конце",
+  "src": "Seated_Cable_Rows"
+ },
+ {
+  "k": "fc",
+  "name": "Тяга каната к лицу",
+  "eq": "gym",
+  "cat": "pull",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [],
+  "cue": "Тяни к лицу, разводя концы каната",
+  "src": "Face_Pull"
+ },
+ {
+  "k": "pul",
+  "name": "Подтягивания",
+  "eq": "gym",
+  "cat": "pull",
+  "mode": "reps",
+  "lvl": 2,
+  "avoid": [
+   "shoulders"
+  ],
+  "cue": "Подбородок выше перекладины, без раскачки",
+  "src": "Pullups"
+ },
+ {
+  "k": "ir",
+  "name": "Австралийские подтягивания",
+  "eq": "gym",
+  "cat": "pull",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Тело прямое, тяни грудь к перекладине",
+  "src": "Inverted_Row"
+ },
+ {
+  "k": "cc",
+  "name": "Скручивания на блоке",
+  "eq": "gym",
+  "cat": "core",
+  "mode": "reps",
+  "lvl": 1,
+  "avoid": [],
+  "cue": "Скручивайся корпусом, бёдра неподвижны",
+  "src": "Cable_Crunch"
+ }
+]
